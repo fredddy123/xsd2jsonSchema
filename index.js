@@ -1,4 +1,3 @@
-const fs = require('fs');
 const ArgumentParser = require('argparse').ArgumentParser;
 const spawn = require('child_process').spawn;
 
@@ -28,8 +27,6 @@ const {
     jsonschema
 } = args;
 
-// const xsdFileData = fs.readFileSync(xsd).toString();
-// java --add-modules=java.xml.bind,java.activation -jar node_modules/jsonix-schema-compiler/lib/jsonix-schema-compiler-full.jar -generateJsonSchema -p PO sample.xsd
 const child = spawn('java', [
     '--add-modules=java.xml.bind,java.activation',
     '-jar',
