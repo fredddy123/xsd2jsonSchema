@@ -1,3 +1,4 @@
+const fs = require('fs');
 const ArgumentParser = require('argparse').ArgumentParser;
 const spawn = require('child_process').spawn;
 
@@ -20,19 +21,38 @@ parser.addArgument(
 );
 
 const args = parser.parseArgs();
-console.dir(args);
 
 const {
     xsd,
     jsonschema
 } = args;
 
-const child = spawn('java', [
-    '--add-modules=java.xml.bind,java.activation',
-    '-jar',
-    'node_modules/jsonix-schema-compiler/lib/jsonix-schema-compiler-full.jar',
-    '-generateJsonSchema',
-    '-p',
-    jsonschema,
-    xsd
-]);
+(async () => {
+    await new Promise(resolve => {
+        const child = spawn('java', [
+            '--add-modules=java.xml.bind,java.activation',
+            '-jar',
+            'node_modules/jsonix-schema-compiler/lib/jsonix-schema-compiler-full.jar',
+            '-generateJsonSchema',
+            '-p',
+            jsonschema,
+            xsd
+        ]);
+
+        child.on('close', resolve);
+    });
+
+    const generatedSchema = require(`./${jsonschema}.js`)[jsonschema];
+
+    const propertyInfos = generatedSchema.typeInfos.reduce((pInfos, typeInfo) => {
+        return [
+            ...pInfos,
+            ...typeInfo.propertyInfos
+        ];
+    }, []);
+
+    const result = require('./component.template.json');
+
+    const actions = result.actions = {};
+    //...
+})().then(process.exit, console.error);
