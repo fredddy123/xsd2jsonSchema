@@ -37,7 +37,7 @@ function convertType(type) {
     return result;
 }
 
-function toProperties(type, productDataType) {
+function toProperties(type) {
     indent++;
     const suffix = new Array(indent + 1).join('\t');
     const props = {};
@@ -67,7 +67,7 @@ function toProperties(type, productDataType) {
             if (!subType) {
                 throw new Error(`Can not lookup typeInfo of prop=${JSON.stringify(prop)}`);
             }
-            result.properties = toProperties(subType, productDataType);
+            result.properties = toProperties(subType);
         } else if (prop.typeInfo && prop.typeInfo.indexOf('.') >= 0) {
             // Sometimes we have enums defined as types
             const subType = lookupType(prop.typeInfo);
@@ -90,7 +90,7 @@ function toProperties(type, productDataType) {
 /**
  * This function will return a map of properties for given product data type
  */
-module.exports = function generateProperties(type, generatedSchema) {
+module.exports = function generateProperties(generatedSchema) {
     mappings = generatedSchema;
     const propertyInfos = generatedSchema.typeInfos.reduce((pInfos, typeInfo) => {
         return [
@@ -101,5 +101,5 @@ module.exports = function generateProperties(type, generatedSchema) {
 
     return toProperties({
         propertyInfos
-    }, type);
+    });
 };

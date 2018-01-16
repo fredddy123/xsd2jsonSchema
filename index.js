@@ -1,5 +1,7 @@
 const fs = require('fs');
 const {spawn} = require('child_process');
+const mkdir = require('mkdirp');
+const rmrf = require('rmrf');
 const ArgumentParser = require('argparse').ArgumentParser;
 const schemas = require('./schemas.js');
 
@@ -28,34 +30,19 @@ const {
     jsonschema
 } = args;
 
-/**
- * This function will create an action file with given type name and located under filename
- * @param name
- * @param filename
- */
-function createAction(name, filename) {
-    const content = `module.exports.process = function() {
-    // name === ${name}
-};
-  `;
-    fs.writeFileSync(filename, content);
-}
 
-/**
- * This method should generate a schema for given type into given filename
- *
- * @param type
- * @param filename
- */
-function createSchema(type, filename, generatedSchema) {
+function createSchema(filename, generatedSchema) {
     const content = {
         type: 'object',
         title: 'Item'
     };
-    content.properties = schemas(type, generatedSchema);
+    content.properties = schemas(generatedSchema);
 
     fs.writeFileSync(filename, JSON.stringify(content, null, '  '));
 }
+
+rmrf('./generated');
+mkdir.sync('./generated/schemas');
 
 (async () => {
     await new Promise(resolve => {
@@ -70,6 +57,13 @@ function createSchema(type, filename, generatedSchema) {
         ]);
 
         child.on('close', resolve);
+
+        child.stdout.on('data', buf => {
+            console.log(buf.toString());
+        });
+        child.stderr.on('data', buf => {
+            console.log(buf.toString());
+        });
     });
 
     const generatedSchema = require(`./${jsonschema}.js`)[jsonschema];
@@ -90,30 +84,7 @@ function createSchema(type, filename, generatedSchema) {
 
     const actions = result.actions = {};
 
-    propertyTypes.forEach(name => {
-        const capName = name.charAt(0).toUpperCase() + name.slice(1);
-        const title = `Create ${capName}`;
-        const main = `./generated/actions/create${capName}.js`;
-        const schema = `./generated/schemas/${name}.in.json`;
-        actions[name] = {
-            title,
-            main,
-            metadata: {
-                in: schema,
-                out: {
-                    type: 'object',
-                    properties: {
-                        result: {
-                            type: 'boolean',
-                            required: 'true'
-                        }
-                    }
-                }
-            }
-        };
-        createSchema(name, schema, generatedSchema);
-        createAction(name, main);
-    });
+    createSchema('generated_schema.json', generatedSchema);
 
-    fs.writeFileSync('./component.json', JSON.stringify(result, null, '  '));
+    // fs.writeFileSync('./component.json', JSON.stringify(result, null, '  '));
 })().then(process.exit, console.error);

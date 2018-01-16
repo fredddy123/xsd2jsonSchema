@@ -1,2 +1,4 @@
 node_modules
+generated
 component.json
+generated_schema.json

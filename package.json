@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "argparse": "^1.0.9",
-    "jsonix-schema-compiler": "^2.3.9"
+    "jsonix-schema-compiler": "^2.3.9",
+    "mkdirp": "^0.5.1",
+    "rmrf": "^1.0.2"
   }
 }
