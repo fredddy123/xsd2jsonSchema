@@ -46,7 +46,14 @@ function toProperties(type) {
         throw new Error(`Type ${type.localName} has no propertyInfos property ${JSON.stringify(type)}`);
     }
     type.propertyInfos.forEach((prop) => {
-        const type = convertType(prop.typeInfo);
+        // const type = convertType(prop.typeInfo);
+        let type;
+
+        try {
+            type = convertType(prop.typeInfo);
+        } catch (e) {
+            return;
+        }
         const required = prop.required || false;
         const name = prop.name;
         const result = {

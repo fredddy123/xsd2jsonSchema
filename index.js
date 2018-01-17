@@ -41,9 +41,6 @@ function createSchema(filename, generatedSchema) {
     fs.writeFileSync(filename, JSON.stringify(content, null, '  '));
 }
 
-rmrf('./generated');
-mkdir.sync('./generated/schemas');
-
 (async () => {
     await new Promise(resolve => {
         const child = spawn('java', [
