@@ -16,20 +16,14 @@ parser.addArgument(
     help: 'Path to the xsd file'
   }
 );
-parser.addArgument(
-  [ '-j', '--jsonschema' ],
-  {
-    help: 'Name of generated JSONSchema file'
-  }
-);
 
 const args = parser.parseArgs();
 
 const {
-    xsd,
-    jsonschema
+    xsd
 } = args;
 
+const jsonschema = `a${Date.now()}b`;
 
 function createSchema(filename, generatedSchema) {
     const content = {
@@ -71,7 +65,7 @@ function createSchema(filename, generatedSchema) {
     const propertyInfos = generatedSchema.typeInfos.reduce((pInfos, typeInfo) => {
         return [
             ...pInfos,
-            ...typeInfo.propertyInfos
+            ...(typeInfo.propertyInfos || [])
         ];
     }, []);
 
